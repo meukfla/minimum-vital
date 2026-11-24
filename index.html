@@ -285,10 +285,10 @@ var MS_LABEL={3:'3 jours',7:'1 semaine',14:'2 semaines',30:'1 mois',60:'2 mois',
 var DEF={
   settings:{
     exercises:[
-      {id:'e1',name:'Pompes',detail:'sur les genoux si besoin'},
-      {id:'e2',name:'Squats',detail:'lentement'},
-      {id:'e3',name:'Gainage',detail:'tiens ce que tu peux'},
-      {id:'e4',name:'Abdos',detail:'sans tirer sur la nuque'}
+      {id:'e1',name:'Pompes',detail:'10, sur les genoux si besoin'},
+      {id:'e2',name:'Squats',detail:'30, par séries de 15 si besoin'},
+      {id:'e3',name:'Planche',detail:'20 à 30 secondes, sur les avant-bras'},
+      {id:'e5',name:'Montées de genoux',detail:'20 par jambe, lentement'}
     ],
     cardioDays:[2,6],
     meals:['Assiette grillée sans frites','Sandwich poulet crudités','Poké ou sushi'],
@@ -337,6 +337,11 @@ function norm(o){
   if(!Array.isArray(s.settings.reperes))s.settings.reperes=clone(DEF.settings.reperes);
   if(!Array.isArray(s.settings.drive))s.settings.drive=clone(DEF.settings.drive);
   if(!Array.isArray(s.settings.exercises)||!s.settings.exercises.length)s.settings.exercises=clone(DEF.settings.exercises);
+  /* Ancienne routine d'origine jamais modifiée (avec abdos) : remplacée par la nouvelle sans abdos. Une routine personnalisée n'est pas touchée. */
+  (function(){
+    var ex=s.settings.exercises;
+    if(ex.length===4&&ex[0].id==='e1'&&ex[0].name==='Pompes'&&ex[0].detail==='sur les genoux si besoin'&&ex[1].id==='e2'&&ex[1].name==='Squats'&&ex[1].detail==='lentement'&&ex[2].id==='e3'&&ex[2].name==='Gainage'&&ex[2].detail==='tiens ce que tu peux'&&ex[3].id==='e4'&&ex[3].name==='Abdos'&&ex[3].detail==='sans tirer sur la nuque')s.settings.exercises=clone(DEF.settings.exercises);
+  })();
   if(!Array.isArray(s.settings.cardioDays))s.settings.cardioDays=[2,6];
   if(!Array.isArray(s.settings.meals))s.settings.meals=clone(DEF.settings.meals);
   return s;
