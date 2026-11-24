@@ -161,6 +161,8 @@ p{margin:0}
 .edrow{display:grid;grid-template-columns:1fr 1fr 48px;gap:6px;align-items:center}
 .edrow.one{grid-template-columns:1fr 48px}
 .x{width:48px;height:48px;border-radius:50%;border:0;background:var(--surface-2);color:var(--accent);font-weight:800;font-size:1.2rem}
+.tag .x{width:28px;height:28px;font-size:1rem;margin-left:4px;vertical-align:middle;background:var(--surface)}
+.tag:has(.x){white-space:normal;max-width:100%;overflow-wrap:anywhere;text-transform:none;letter-spacing:0;font-size:.85rem;padding:4px 6px 4px 12px}
 textarea.inp{min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size:.78rem;resize:vertical}
 .switch{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700}
 .empty-state{text-align:center;padding:18px 8px;color:var(--ink-soft);font-weight:600;display:flex;flex-direction:column;gap:8px;align-items:center}
@@ -297,15 +299,9 @@ var DEF={
       {id:'r1',name:'J’ai mangé un petit quelque chose en début de journée'},
       {id:'r2',name:'J’ai de quoi manger ce soir'},
       {id:'r3',name:'J’ai noté ce que j’ai mangé'}
-    ],
-    drive:[
-      {id:'d1',name:'Œufs'},{id:'d2',name:'Yaourts ou fromage blanc'},{id:'d3',name:'Fruits'},
-      {id:'d4',name:'Légumes surgelés ou en sachet'},{id:'d5',name:'Poulet ou jambon'},{id:'d6',name:'Pain'},
-      {id:'d7',name:'Lentilles cuites (bocal ou boîte)'},{id:'d8',name:'Riz et pâtes'},{id:'d9',name:'Soupes en brique'},
-      {id:'d10',name:'Compotes et fruits secs (casier de dépannage)'},{id:'d11',name:'Barres (casier de dépannage)'}
     ]
   },
-  days:{},photoChecks:{},driveChecks:{}
+  days:{},photoChecks:{}
 };
 var PHOTO_CHECKS=[
   ['lieu','Même endroit dans la pièce'],
@@ -332,10 +328,8 @@ function norm(o){
     if(o.settings&&typeof o.settings==='object'){for(var k in s.settings){if(o.settings[k]!==undefined)s.settings[k]=o.settings[k];}}
     if(o.days&&typeof o.days==='object')s.days=o.days;
     if(o.photoChecks&&typeof o.photoChecks==='object')s.photoChecks=o.photoChecks;
-    if(o.driveChecks&&typeof o.driveChecks==='object')s.driveChecks=o.driveChecks;
   }
   if(!Array.isArray(s.settings.reperes))s.settings.reperes=clone(DEF.settings.reperes);
-  if(!Array.isArray(s.settings.drive))s.settings.drive=clone(DEF.settings.drive);
   if(!Array.isArray(s.settings.exercises)||!s.settings.exercises.length)s.settings.exercises=clone(DEF.settings.exercises);
   /* Ancienne routine d'origine jamais modifiée (avec abdos) : remplacée par la nouvelle sans abdos. Une routine personnalisée n'est pas touchée. */
   (function(){
@@ -350,7 +344,7 @@ function load(){try{var r=localStorage.getItem(LS_KEY);if(r)return norm(JSON.par
 var S=load();
 var STORE_OK=true;
 function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(S));STORE_OK=true;}catch(e){STORE_OK=false;}}
-function dataText(){return JSON.stringify({app:'petits-pas-roses',v:1,settings:S.settings,days:S.days,photoChecks:S.photoChecks,driveChecks:S.driveChecks});}
+function dataText(){return JSON.stringify({app:'petits-pas-roses',v:1,settings:S.settings,days:S.days,photoChecks:S.photoChecks});}
 try{localStorage.setItem(LS_KEY+'.test','1');localStorage.removeItem(LS_KEY+'.test');}catch(e){STORE_OK=false;}
 
 /* ---------- Dates ---------- */
@@ -377,9 +371,18 @@ function streaks(){
   ks.forEach(function(k){var dt=fromKey(k);if(prev&&Math.round((dt-prev)/864e5)===1)run++;else run=1;if(run>best)best=run;prev=dt;});
   return {cur:cur,best:Math.max(best,cur)};
 }
+var SPORTS=[['salle','Salle'],['shadow','Shadow ou sac'],['marche','Marche ou course +30 min']];
+function sportDone(d){if(!d)return false;if((d.cardio&&d.cardio.done)||d.boxing)return true;var sp=d.sport;return !!(sp&&((sp.k&&Object.keys(sp.k).length)||(sp.other&&sp.other.length)));}
+function sportOthers(){var c={};Object.keys(S.days).forEach(function(k){var sp=S.days[k].sport;if(sp&&sp.other)sp.other.forEach(function(x){c[x]=(c[x]||0)+1;});});return Object.keys(c).sort(function(a,b){return c[b]-c[a];});}
+function addOther(txt){
+  txt=(txt||'').replace(/\s+/g,' ').trim().slice(0,40);if(!txt){toast('Écris le nom du sport.');return;}
+  var d=dayRef(key(today())),was=sportDone(d);d.sport=d.sport||{};d.sport.other=d.sport.other||[];
+  if(d.sport.other.indexOf(txt)<0)d.sport.other.push(txt);
+  UI.otherOpen=false;save();if(!was)celebrate('cardio',true);else toast('Ajouté.');render();
+}
 function totals(){
   var meals=0,cardio=0,rep=0;
-  Object.keys(S.days).forEach(function(k){var d=S.days[k];meals+=d.meals||0;if((d.cardio&&d.cardio.done)||d.boxing)cardio++;if(d.rep&&Object.keys(d.rep).length>=2)rep++;});
+  Object.keys(S.days).forEach(function(k){var d=S.days[k];meals+=d.meals||0;if(sportDone(d))cardio++;if(d.rep&&Object.keys(d.rep).length>=2)rep++;});
   return {meals:meals,cardio:cardio,rep:rep};
 }
 function photoWeekRun(){
@@ -487,11 +490,10 @@ function viewToday(){
   var h='<header class="top"><p class="eyebrow">'+cap(DAYS_FR[dow])+' '+t.getDate()+' '+MONTHS[t.getMonth()]+'</p><h1><span class="berry" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 36C9 30 5 20 8 14c3-5 9-4 12-2 3-2 9-3 12 2 3 6-1 16-12 22z" fill="var(--pink-soft)" stroke="var(--pink)" stroke-width="2" stroke-linejoin="round"/><path d="M13 12l7-3 7 3-3 2-4-1-4 1z" fill="var(--leaf)" stroke="var(--mint-ink)" stroke-width="1.4" stroke-linejoin="round"/><circle cx="16" cy="22" r="1.5" fill="var(--ink)"/><circle cx="24" cy="22" r="1.5" fill="var(--ink)"/><path d="M18 26q2 2 4 0" stroke="var(--ink)" stroke-width="1.4" fill="none" stroke-linecap="round"/><circle cx="13" cy="26" r="1.8" fill="var(--pink)"/><circle cx="27" cy="26" r="1.8" fill="var(--pink)"/></svg></span>Petits pas roses</h1>';
   if(dow===4)h+='<p class="sub">Jeudi GRETA : la routine suffit aujourd’hui.</p>';
   h+='<p class="hint">'+(STORE_OK?'enregistré sur cet appareil seulement':'attention : cet appareil refuse l’enregistrement')+'</p></header>';
-  var nothing=!(d.floor||hasAny(d.ex)||d.walk||(d.cardio&&d.cardio.done)||d.boxing||d.meals);
+  var nothing=!(d.floor||hasAny(d.ex)||d.walk||sportDone(d)||d.meals);
   if(nothing)h+='<div class="banner"><p><b>Rien de coché pour l’instant.</b> La version plancher prend 3 minutes et compte pour la journée.</p><button class="btn small" data-act="floor">Je prends la version plancher</button></div>';
   var hasPhoto=P.some(function(p){return p.week===wk(t);});
   if(dow===st.photoDay&&!hasPhoto)h+='<div class="banner"><p><b>C’est ton jour photo.</b> Même lumière et même endroit que d’habitude, vers '+esc(st.photoTime)+'.</p><a class="btn small" href="#photo" style="text-decoration:none">Aller à la photo</a></div>';
-  if(dow===1)h+='<div class="banner"><p><b>C’est lundi.</b> Ta liste drive de la semaine t’attend.</p><a class="btn small" href="#repas" style="text-decoration:none">Ouvrir la liste</a></div>';
   var n=ex.filter(function(e){return d.ex&&d.ex[e.id];}).length;
   var pct=d.floor?100:Math.round(n/ex.length*100);
   h+='<section class="card"><div class="card-head"><h2>Ma routine du jour</h2><span class="tag">'+(d.ok?'faite':'à faire')+'</span></div>';
@@ -508,21 +510,18 @@ function viewToday(){
   });
   h+='</div></section>';
 
-  var cd=d.cardio||{},isCd=st.cardioDays.indexOf(dow)>-1;
-  h+='<section class="card"><div class="card-head"><h2>Cardio</h2><span class="tag">'+(isCd?'prévu aujourd’hui':'bonus')+'</span></div>';
-  h+='<div class="chips">';
-  [['salle','Salle'],['shadow','Shadow ou sac'],['run','Course ou marche alternée']].forEach(function(c){
-    h+='<button class="chip" data-act="ckind" data-v="'+c[0]+'" aria-pressed="'+(cd.done&&cd.kind===c[0]?'true':'false')+'">'+c[1]+'</button>';
-  });
-  h+='</div>';
-  if(cd.done&&cd.kind==='salle'){
-    h+='<div class="chips">';
-    [['tapis','Tapis'],['velo','Vélo'],['rameur','Rameur']].forEach(function(m){h+='<button class="chip" data-act="cmach" data-v="'+m[0]+'" aria-pressed="'+(cd.machine===m[0]?'true':'false')+'">'+m[1]+'</button>';});
-    h+='</div>';
+  var sp=d.sport||{},spk=sp.k||{},spo=sp.other||[],isCd=st.cardioDays.indexOf(dow)>-1;
+  h+='<section class="card"><div class="card-head"><h2>Sport</h2><span class="tag">'+(isCd?'prévu aujourd’hui':'bonus')+'</span></div><div class="chips">';
+  SPORTS.forEach(function(c){h+='<button class="chip" data-act="sport" data-v="'+c[0]+'" aria-pressed="'+(spk[c[0]]?'true':'false')+'">'+c[1]+'</button>';});
+  h+='<button class="chip" data-act="sportother" aria-pressed="'+(UI.otherOpen||spo.length?'true':'false')+'" aria-expanded="'+(UI.otherOpen?'true':'false')+'">Autre</button></div>';
+  if(spo.length){h+='<div class="chips">';spo.forEach(function(x,i){h+='<span class="tag">'+esc(x)+' <button class="x" data-act="otherdel" data-i="'+i+'" aria-label="Retirer '+esc(x)+'">×</button></span>';});h+='</div>';}
+  if(UI.otherOpen){
+    var sg=sportOthers().filter(function(x){return spo.indexOf(x)<0;}).slice(0,5);
+    h+='<div class="field"><label for="sportOther">Quel sport ?</label><input class="inp" id="sportOther" maxlength="40" placeholder="Yoga, natation, vélo…" autocomplete="off"></div>';
+    if(sg.length){h+='<div class="chips">';sg.forEach(function(x){h+='<button class="chip" data-act="otherpick" data-v="'+esc(x)+'">'+esc(x)+'</button>';});h+='</div>';}
+    h+='<button class="btn block" data-act="otheradd">Ajouter</button>';
   }
-  h+='<button class="check" data-act="cardio" aria-pressed="'+(cd.done?'true':'false')+'"><span class="box">'+CHECK+'</span><span class="txt"><b>Cardio fait</b></span></button>';
-  h+='<button class="check" data-act="boxing" aria-pressed="'+(d.boxing?'true':'false')+'"><span class="box">'+CHECK+'</span><span class="txt"><b>Séance de boxe</b><small>thaï ou autre</small></span></button></section>';
-
+  h+='</section>\n\n';
   var eats=d.eats||[],rp=d.rep||{},rn=st.reperes.filter(function(r){return rp[r.id];}).length;
   h+='<section class="card"><div class="card-head"><h2>Mes repas</h2><span class="tag">'+(rn?'repères en route':'à démarrer')+'</span></div>';
   if(eats.length){h+='<div class="chips">';eats.forEach(function(e){h+='<span class="tag">'+MOMENT[e.t]+' · '+QTY[e.q]+'</span>';});h+='</div>';}
@@ -624,7 +623,6 @@ function advice(eats){
 function viewRepas(){
   var t=today(),k=key(t),d=S.days[k]||{},st=S.settings,eats=d.eats||[],rep=d.rep||{},mom=UI.eatMoment||defMoment();
   var h='<header class="top"><p class="eyebrow">Sans pression</p><h1>Mes repas</h1></header>';
-  if(t.getDay()===1)h+='<div class="banner"><p><b>C’est lundi.</b> Ta liste drive de la semaine est plus bas.</p></div>';
 
   h+='<section class="card"><div class="card-head"><h2>Mes repères du jour</h2></div><div class="checks">';
   st.reperes.forEach(function(r){h+='<button class="check" data-act="rep" data-id="'+esc(r.id)+'" aria-pressed="'+(rep[r.id]?'true':'false')+'"><span class="box">'+CHECK+'</span><span class="txt"><b>'+esc(r.name)+'</b></span></button>';});
@@ -652,10 +650,6 @@ function viewRepas(){
   st.meals.forEach(function(m){if(m)h+='<li>'+esc(m)+'</li>';});
   h+='</ul><h3>Trois astuces</h3><ol class="tips"><li>Les sauces à part.</li><li>Des légumes à la place des frites.</li><li>Commander avant de lire la carte.</li></ol></section>';
 
-  var w=wk(t),chk=S.driveChecks[w]||[],items=st.drive;
-  h+='<section class="card"><div class="card-head"><h2>Liste drive du lundi</h2><span class="tag">'+(items.length&&items.every(function(x){return chk.indexOf(x.id)>-1;})?'panier complet':'cette semaine')+'</span></div><div class="checks">';
-  items.forEach(function(x){if(x.name)h+='<button class="check" data-act="dchk" data-id="'+esc(x.id)+'" aria-pressed="'+(chk.indexOf(x.id)>-1?'true':'false')+'" style="min-height:52px"><span class="box">'+CHECK+'</span><span class="txt"><b>'+esc(x.name)+'</b></span></button>';});
-  h+='</div><p class="hint">Coche ce qui est dans ton panier. La liste repart à zéro chaque lundi et tu peux la modifier dans les Réglages.</p></section>';
   return h;
 }
 
@@ -719,7 +713,7 @@ function viewProgress(){
     ['star','2 semaines',sk.best>=14,'encore '+Math.max(0,14-sk.best)+' j'],
     ['star','1 mois',sk.best>=30,'encore '+Math.max(0,30-sk.best)+' j'],
     ['plate','10 repas tenus',tt.meals>=10,'encore '+Math.max(0,10-tt.meals)],
-    ['bolt','10 séances de cardio',tt.cardio>=10,'encore '+Math.max(0,10-tt.cardio)],
+    ['bolt','10 séances de sport',tt.cardio>=10,'encore '+Math.max(0,10-tt.cardio)],
     ['cam','4 photos de suite',pr>=4,'encore '+Math.max(0,4-pr)+' sem.'],
     ['leaf','5 jours de repères',tt.rep>=5,'encore '+Math.max(0,5-tt.rep)+' j']
   ];
@@ -728,10 +722,10 @@ function viewProgress(){
   h+='</div></section>';
 
   var okc=0,cdc=0,ml=0;
-  for(var q=0;q<7;q++){var d2=new Date(ws.getTime());d2.setDate(ws.getDate()+q);var rr=S.days[key(d2)];if(rr){if(rr.ok)okc++;if((rr.cardio&&rr.cardio.done)||rr.boxing)cdc++;ml+=rr.meals||0;}}
+  for(var q=0;q<7;q++){var d2=new Date(ws.getTime());d2.setDate(ws.getDate()+q);var rr=S.days[key(d2)];if(rr){if(rr.ok)okc++;if(sportDone(rr))cdc++;ml+=rr.meals||0;}}
   var photoDone=P.some(function(p){return p.week===wk(t);});
   var l1=okc===0?'La routine n’a pas encore démarré cette semaine. Elle t’attend sans rancune.':okc<3?'Quelques jours de routine déjà. Le plus dur est derrière toi.':okc<6?'La routine tient bien cette semaine.':'Routine presque parfaite cette semaine.';
-  var l2=cdc?'Du cardio est au programme cette semaine. Bravo.':'Pas encore de cardio cette semaine. Il reste du temps.';
+  var l2=cdc?'Du sport est au programme cette semaine. Bravo.':'Pas encore de sport cette semaine. Il reste du temps.';
   var l3=ml?'Des repas dehors tenus sans friture. Bien joué.':'Aucun repas dehors noté pour l’instant.';
   var l4=photoDone?'La photo de la semaine est prise.':'La photo de la semaine reste à faire.';
   h+='<section class="card"><div class="card-head"><h2>'+(t.getDay()===0?'Récap du dimanche':'Récap de la semaine')+'</h2></div><ul class="list"><li>'+l1+'</li><li>'+l2+'</li><li>'+l3+'</li><li>'+l4+'</li></ul><p>Et si tu regardais comment tu as changé ? Ton comparateur de photos t’attend.</p><a class="btn" href="#photo" style="text-decoration:none">Voir mon comparateur</a></section>';
@@ -748,7 +742,7 @@ function viewSettings(){
   });
   h+='<button class="btn ghost small" data-act="exadd">Ajouter un exercice</button></section>';
 
-  h+='<section class="card"><div class="card-head"><h2>Jours de cardio</h2></div><div class="chips">';
+  h+='<section class="card"><div class="card-head"><h2>Jours de sport</h2></div><div class="chips">';
   [[1,'Lun'],[2,'Mar'],[3,'Mer'],[4,'Jeu'],[5,'Ven'],[6,'Sam'],[0,'Dim']].forEach(function(x){h+='<button class="chip" data-act="cdays" data-v="'+x[0]+'" aria-pressed="'+(st.cardioDays.indexOf(x[0])>-1?'true':'false')+'">'+x[1]+'</button>';});
   h+='</div></section>';
 
@@ -759,10 +753,6 @@ function viewSettings(){
   h+='<section class="card"><div class="card-head"><h2>Mes repères repas</h2></div>';
   st.reperes.forEach(function(r){h+='<div class="edrow one"><input class="inp" id="rep-'+r.id+'" data-field="repname" data-id="'+r.id+'" value="'+esc(r.name)+'" aria-label="Repère"><button class="x" data-act="repdel" data-id="'+r.id+'" aria-label="Supprimer le repère">×</button></div>';});
   h+='<button class="btn ghost small" data-act="repadd">Ajouter un repère</button></section>';
-
-  h+='<section class="card"><div class="card-head"><h2>Liste drive du lundi</h2></div>';
-  st.drive.forEach(function(x){h+='<div class="edrow one"><input class="inp" id="dr-'+x.id+'" data-field="drname" data-id="'+x.id+'" value="'+esc(x.name)+'" aria-label="Article"><button class="x" data-act="drdel" data-id="'+x.id+'" aria-label="Supprimer l’article">×</button></div>';});
-  h+='<button class="btn ghost small" data-act="dradd">Ajouter un article</button></section>';
 
   h+='<section class="card"><div class="card-head"><h2>Rendez-vous photo</h2></div><div class="row2"><div class="field"><label for="pday">Jour</label><select class="sel" id="pday" data-field="photoDay">';
   [[1,'lundi'],[2,'mardi'],[3,'mercredi'],[4,'jeudi'],[5,'vendredi'],[6,'samedi'],[0,'dimanche']].forEach(function(x){h+='<option value="'+x[0]+'"'+(st.photoDay===x[0]?' selected':'')+'>'+x[1]+'</option>';});
@@ -778,7 +768,7 @@ function viewSettings(){
     h+='<div class="field"><label for="importTa">Colle ici le texte copié avec « Copier mes données »</label><textarea class="inp" id="importTa" placeholder="Colle ici le texte copié"></textarea></div><button class="btn ghost block" data-act="import">Restaurer</button>';
   }
   h+='</section><section class="card"><div class="card-head"><h2>Remettre à zéro</h2></div>';
-  h+=UI.confirmReset?'<p class="hint">Toutes tes cases, tes repères, ta liste drive et tes réglages seront effacés. Les photos restent.</p><div class="row2"><button class="btn small" data-act="resetgo">Oui, tout effacer</button><button class="btn ghost small" data-act="resetno">Annuler</button></div>':'<button class="btn ghost block" data-act="reset">Remettre à zéro</button>';
+  h+=UI.confirmReset?'<p class="hint">Toutes tes cases, tes repères et tes réglages seront effacés. Les photos restent.</p><div class="row2"><button class="btn small" data-act="resetgo">Oui, tout effacer</button><button class="btn ghost small" data-act="resetno">Annuler</button></div>':'<button class="btn ghost block" data-act="reset">Remettre à zéro</button>';
   h+='</section>';
   return h;
 }
@@ -844,14 +834,14 @@ function act(a,el){
     case 'walk':
       if(d.walk===v)delete d.walk;else{d.walk=v;celebrate('walk',false);}
       break;
-    case 'cardio':
-      d.cardio=d.cardio||{};d.cardio.done=!d.cardio.done;if(d.cardio.done)celebrate('cardio',true);break;
-    case 'ckind':
-      d.cardio=d.cardio||{};if(d.cardio.done&&d.cardio.kind===v){d.cardio.done=false;}else{var was=d.cardio.done;d.cardio.kind=v;d.cardio.done=true;if(!was)celebrate('cardio',true);}break;
-    case 'cmach':
-      d.cardio=d.cardio||{};d.cardio.machine=d.cardio.machine===v?undefined:v;break;
-    case 'boxing':
-      d.boxing=!d.boxing;if(d.boxing)celebrate('cardio',true);else delete d.boxing;break;
+    case 'sport':{
+      d.sport=d.sport||{};d.sport.k=d.sport.k||{};var wasS=sportDone(d);
+      if(d.sport.k[v])delete d.sport.k[v];else d.sport.k[v]=true;
+      if(!wasS&&d.sport.k[v])celebrate('cardio',true);break;}
+    case 'sportother':UI.otherOpen=!UI.otherOpen;render();if(UI.otherOpen){var io=document.getElementById('sportOther');if(io)io.focus();}return;
+    case 'otheradd':addOther((document.getElementById('sportOther')||{}).value);return;
+    case 'otherpick':addOther(v);return;
+    case 'otherdel':{if(d.sport&&d.sport.other){d.sport.other.splice(+el.dataset.i,1);if(!d.sport.other.length)delete d.sport.other;}break;}
     case 'meal+':
       d.meals=(d.meals||0)+1;celebrate('meal',true);break;
     case 'meal-':
@@ -870,11 +860,8 @@ function other(a,el){
     case 'eqty':UI.eatQty=v;render();return;
     case 'eatadd':{if(!UI.eatQty)return;var de=dayRef(key(today()));de.eats=de.eats||[];de.eats.push({t:UI.eatMoment||defMoment(),q:UI.eatQty,ts:Date.now()});UI.eatQty=null;save();toast('Noté.');render();return;}
     case 'eatdel':{var dx=dayRef(key(today()));(dx.eats||[]).splice(+el.dataset.i,1);if(dx.eats&&!dx.eats.length)delete dx.eats;save();render();return;}
-    case 'dchk':{var w2=wk(today()),c2=S.driveChecks[w2]||[],j2=c2.indexOf(id);if(j2>-1)c2.splice(j2,1);else c2.push(id);S.driveChecks[w2]=c2;save();render();return;}
     case 'repadd':st.reperes.push({id:uid(),name:'Nouveau repère'});save();render();return;
     case 'repdel':st.reperes=st.reperes.filter(function(r){return r.id!==id;});save();render();return;
-    case 'dradd':st.drive.push({id:uid(),name:''});save();render();return;
-    case 'drdel':st.drive=st.drive.filter(function(r){return r.id!==id;});save();render();return;
 
     case 'pcheck':{var w=wk(today()),c=S.photoChecks[w]||[],i=c.indexOf(id);if(i>-1)c.splice(i,1);else c.push(id);S.photoChecks[w]=c;save();render();return;}
     case 'prog':{var card=el.closest('.acc');UI.progOpen[id]=!UI.progOpen[id];if(card){card.classList.toggle('open',!!UI.progOpen[id]);el.setAttribute('aria-expanded',UI.progOpen[id]?'true':'false');}return;}
@@ -910,13 +897,13 @@ document.addEventListener('click',function(e){
   var el=e.target.closest('[data-act]');if(!el||el.disabled)return;
   act(el.dataset.act,el);
 });
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.id==='sportOther'){e.preventDefault();addOther(e.target.value);}});
 document.addEventListener('change',function(e){
   var el=e.target,f=el.dataset&&el.dataset.field;if(!f)return;
   var st=S.settings;
   if(f==='exname'||f==='exdetail'){st.exercises.forEach(function(x){if(x.id===el.dataset.id){if(f==='exname')x.name=el.value.trim()||'Exercice';else x.detail=el.value.trim();}});save();}
   else if(f==='meal'){st.meals[+el.dataset.i]=el.value.trim();save();}
   else if(f==='repname'){st.reperes.forEach(function(r){if(r.id===el.dataset.id)r.name=el.value.trim()||'Repère';});save();}
-  else if(f==='drname'){st.drive.forEach(function(r){if(r.id===el.dataset.id)r.name=el.value.trim();});save();}
   else if(f==='photoDay'){st.photoDay=+el.value;save();}
   else if(f==='photoTime'){st.photoTime=el.value||'10:00';save();}
   else if(f==='cmpA'||f==='cmpB'){UI.cmp[f==='cmpA'?'a':'b']=el.value;render();}
