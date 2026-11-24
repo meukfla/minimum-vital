@@ -371,7 +371,7 @@ function streaks(){
   ks.forEach(function(k){var dt=fromKey(k);if(prev&&Math.round((dt-prev)/864e5)===1)run++;else run=1;if(run>best)best=run;prev=dt;});
   return {cur:cur,best:Math.max(best,cur)};
 }
-var SPORTS=[['salle','Salle'],['shadow','Shadow ou sac'],['marche','Marche ou course +30 min']];
+var SPORTS=[['salle','Salle'],['shadow','Shadow ou sac'],['course','Course']];
 function sportDone(d){if(!d)return false;if((d.cardio&&d.cardio.done)||d.boxing)return true;var sp=d.sport;return !!(sp&&((sp.k&&Object.keys(sp.k).length)||(sp.other&&sp.other.length)));}
 function sportOthers(){var c={};Object.keys(S.days).forEach(function(k){var sp=S.days[k].sport;if(sp&&sp.other)sp.other.forEach(function(x){c[x]=(c[x]||0)+1;});});return Object.keys(c).sort(function(a,b){return c[b]-c[a];});}
 function addOther(txt){
@@ -490,7 +490,7 @@ function viewToday(){
   var h='<header class="top"><p class="eyebrow">'+cap(DAYS_FR[dow])+' '+t.getDate()+' '+MONTHS[t.getMonth()]+'</p><h1><span class="berry" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 36C9 30 5 20 8 14c3-5 9-4 12-2 3-2 9-3 12 2 3 6-1 16-12 22z" fill="var(--pink-soft)" stroke="var(--pink)" stroke-width="2" stroke-linejoin="round"/><path d="M13 12l7-3 7 3-3 2-4-1-4 1z" fill="var(--leaf)" stroke="var(--mint-ink)" stroke-width="1.4" stroke-linejoin="round"/><circle cx="16" cy="22" r="1.5" fill="var(--ink)"/><circle cx="24" cy="22" r="1.5" fill="var(--ink)"/><path d="M18 26q2 2 4 0" stroke="var(--ink)" stroke-width="1.4" fill="none" stroke-linecap="round"/><circle cx="13" cy="26" r="1.8" fill="var(--pink)"/><circle cx="27" cy="26" r="1.8" fill="var(--pink)"/></svg></span>Petits pas roses</h1>';
   if(dow===4)h+='<p class="sub">Jeudi GRETA : la routine suffit aujourd’hui.</p>';
   h+='<p class="hint">'+(STORE_OK?'enregistré sur cet appareil seulement':'attention : cet appareil refuse l’enregistrement')+'</p></header>';
-  var nothing=!(d.floor||hasAny(d.ex)||d.walk||sportDone(d)||d.meals);
+  var nothing=!(d.floor||hasAny(d.ex)||(d.walk&&d.walk!=='rien')||sportDone(d)||d.meals);
   if(nothing)h+='<div class="banner"><p><b>Rien de coché pour l’instant.</b> La version plancher prend 3 minutes et compte pour la journée.</p><button class="btn small" data-act="floor">Je prends la version plancher</button></div>';
   var hasPhoto=P.some(function(p){return p.week===wk(t);});
   if(dow===st.photoDay&&!hasPhoto)h+='<div class="banner"><p><b>C’est ton jour photo.</b> Même lumière et même endroit que d’habitude, vers '+esc(st.photoTime)+'.</p><a class="btn small" href="#photo" style="text-decoration:none">Aller à la photo</a></div>';
@@ -505,7 +505,7 @@ function viewToday(){
   h+='</div><button class="btn block" data-act="floor" aria-pressed="'+(d.floor?'true':'false')+'">'+(d.floor?'Version plancher validée':'Version plancher 3 min')+'</button><p class="hint">Trois minutes de mouvement comptent autant que la routine complète pour ta série.</p></section>';
 
   h+='<section class="card"><div class="card-head"><h2>Marche</h2></div><div class="chips">';
-  [['peu','Un peu','trajets du quotidien'],['bien','Bien','une vraie balade'],['beaucoup','Beaucoup','transports et marche partout']].forEach(function(w){
+  [['rien','Pas du tout','jour sans'],['peu','Un peu','trajets du quotidien'],['bien','Bien','une vraie balade'],['beaucoup','Beaucoup','transports et marche partout']].forEach(function(w){
     h+='<button class="chip" data-act="walk" data-v="'+w[0]+'" aria-pressed="'+(d.walk===w[0]?'true':'false')+'">'+w[1]+'<small>'+w[2]+'</small></button>';
   });
   h+='</div></section>';
@@ -832,7 +832,7 @@ function act(a,el){
     case 'floor':
       d.floor=!d.floor;if(!d.floor)delete d.floor;finish(wasOk,d,'floor');return;
     case 'walk':
-      if(d.walk===v)delete d.walk;else{d.walk=v;celebrate('walk',false);}
+      if(d.walk===v)delete d.walk;else{d.walk=v;if(v==='rien')toast('Noté. Les jours sans existent aussi, et ils comptent dans le suivi.');else celebrate('walk',false);}
       break;
     case 'sport':{
       d.sport=d.sport||{};d.sport.k=d.sport.k||{};var wasS=sportDone(d);
