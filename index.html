@@ -97,8 +97,8 @@ p{margin:0}
 .list li::before{content:"";flex:none;width:10px;height:10px;margin-top:7px;border-radius:50%;background:var(--pink)}
 .tips{margin:0;padding-left:20px;color:var(--ink-soft);font-weight:600;display:flex;flex-direction:column;gap:4px}
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);box-shadow:0 -6px 20px rgba(214,80,125,.14);padding:8px max(10px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-right,0px));border-radius:24px 24px 0 0}
-.nav-in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
-.nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;border-radius:18px;text-decoration:none;color:var(--ink-soft);font-size:.66rem;font-weight:800;white-space:nowrap}
+.nav-in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);gap:0}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0;border-radius:18px;text-decoration:none;color:var(--ink-soft);font-size:.62rem;font-weight:800;white-space:nowrap}
 .nav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .nav a[aria-current="page"]{color:var(--mint-ink);background:var(--mint)}
 .berry{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.18em;margin-right:.3em}
@@ -167,6 +167,41 @@ textarea.inp{min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size
 .eat{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border-radius:16px;padding:6px 6px 6px 14px;font-weight:700}
 .eat .x{width:40px;height:40px;font-size:1rem}
 .btn[disabled]{opacity:.45;cursor:default}
+/* ---- Onglet Programme ---- */
+:root{--ex-accent:var(--accent)}
+.ex-svg{width:100%;max-width:200px;display:block;margin:8px auto;color:var(--ink);--ex-accent:var(--accent)}
+.ex-svg .b{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ex-svg .hd{fill:none;stroke:currentColor;stroke-width:2.5}
+.ex-svg .d{fill:none;stroke:currentColor;stroke-width:2;stroke-dasharray:4 4;stroke-linecap:round;opacity:.45}
+.ex-svg .a{fill:none;stroke:var(--ex-accent);stroke-width:1.5;marker-end:url(#exa)}
+.ex-svg .w{fill:currentColor;opacity:.7}
+.ex-svg .f{stroke:currentColor;stroke-width:1;opacity:.25}
+#exa path{stroke:var(--ex-accent)}
+.prog{display:flex;flex-direction:column;gap:14px}
+.acc{background:var(--surface);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;min-width:0}
+.acc-head{display:flex;align-items:center;gap:12px;width:100%;min-height:76px;padding:14px 16px;border:0;background:transparent;text-align:left}
+.acc-head .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.acc-head .t b{font-family:var(--font-display);font-weight:600;font-size:1.15rem;line-height:1.2;text-wrap:balance}
+.acc-head .sub2{color:var(--ink-soft);font-weight:600;font-size:.92rem}
+.acc-head .tag{align-self:flex-start;white-space:normal}
+.acc-head .chev{flex:none;width:44px;height:44px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;transition:transform .4s cubic-bezier(.3,1.2,.5,1),background .2s}
+.acc-head .chev svg{width:22px;height:22px;fill:none;stroke:var(--accent);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.acc.open .chev{transform:rotate(180deg);background:var(--pink)}
+.acc-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s ease}
+.acc.open .acc-body{grid-template-rows:1fr}
+.acc-in{min-height:0;overflow:hidden;visibility:hidden;opacity:0;transition:visibility 0s .4s,opacity .3s ease}
+.acc.open .acc-in{visibility:visible;opacity:1;transition-delay:0s}
+.acc-pad{padding:0 16px 18px;display:flex;flex-direction:column;gap:16px}
+.legend{background:var(--mint);color:var(--mint-ink);border-radius:14px;padding:8px 12px;font-size:.85rem;font-weight:700}
+.sec{display:flex;flex-direction:column;gap:8px}
+.exl{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:ex}
+.ex{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border-radius:16px;padding:10px 12px;min-width:0}
+.ex::before{content:"";flex:none;width:10px;height:10px;margin-top:7px;border-radius:50%;background:var(--pink)}
+.exl.num .ex::before{counter-increment:ex;content:counter(ex);width:26px;height:26px;margin-top:0;display:grid;place-items:center;background:var(--pink);color:var(--on-pink);font-weight:800;font-size:.85rem}
+.ex-b{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.ex-b b{font-weight:800}
+.ex-d{display:inline-block;margin-left:4px;padding:2px 10px;border-radius:999px;background:var(--mint);color:var(--mint-ink);font-weight:800;font-size:.85rem}
+.ex-n{color:var(--ink-soft);font-size:.92rem}
 @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:380px){.hero svg.flower{width:96px}.ring{width:128px}.edrow{grid-template-columns:1fr 44px}.edrow input:nth-child(2){grid-column:1/2}}
@@ -175,10 +210,12 @@ textarea.inp{min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size
 <body>
 
 <main id="app" class="wrap" aria-live="polite"></main>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><marker id="exa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs></svg>
 <nav class="nav" aria-label="Navigation principale">
   <div class="nav-in">
     <a href="#aujourdhui" data-nav="aujourdhui"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>Aujourd’hui</a>
     <a href="#repas" data-nav="repas"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg>Repas</a>
+    <a href="#programme" data-nav="programme"><svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Programme</a>
     <a href="#photo" data-nav="photo"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg>Photo</a>
     <a href="#progression" data-nav="progression"><svg viewBox="0 0 24 24"><path d="M5 20v-9M12 20V4M19 20v-6"/></svg>Progrès</a>
     <a href="#reglages" data-nav="reglages"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Réglages</a>
@@ -192,6 +229,51 @@ textarea.inp{min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size
 <script>
 (function(){
 'use strict';
+
+/* ---------- Programmes ----------
+   Pour ajouter un programme : ajouter un objet dans PROGRAMMES.
+   Pour ajouter un dessin : ajouter une clé dans SCHEMAS puis la citer dans « schema ».
+   Une section peut avoir « numerote:true » (liste 1, 2, 3…).
+   Un exercice peut aussi être une simple chaîne de texte (ligne sans gras). */
+var SCHEMAS={
+squat_front_raise:`<svg class="ex-svg" viewBox="0 0 176 100" role="img" aria-label="Squat avec bras tendus devant"><line class="f" x1="20" y1="98" x2="156" y2="98"/><path class="d" d="M72 34 L80 62"/><circle class="hd" cx="70" cy="20" r="8"/><path class="b" d="M72 29 L55 58 L90 68 L82 96"/><path class="b" d="M72 34 L110 34"/><rect class="w" x="110" y="28" width="6" height="12" rx="1"/><path class="a" d="M120 64 Q136 52 122 42"/></svg>`,
+reverse_fly:`<svg class="ex-svg" viewBox="0 0 176 100" role="img" aria-label="Reverse fly, buste penché, bras écartés"><line class="f" x1="20" y1="98" x2="156" y2="98"/><path class="d" d="M110 44 L110 74"/><circle class="hd" cx="122" cy="36" r="8"/><path class="b" d="M78 62 L74 96"/><path class="b" d="M78 62 L110 44"/><path class="b" d="M110 44 L96 24"/><rect class="w" x="90" y="18" width="12" height="6" rx="1" transform="rotate(-55 96 21)"/><path class="a" d="M98 72 Q82 56 88 36"/></svg>`,
+lateral_raise:`<svg class="ex-svg" viewBox="0 0 176 100" role="img" aria-label="Élévations latérales jusqu'aux épaules"><line class="f" x1="20" y1="98" x2="156" y2="98"/><path class="d" d="M88 32 L70 62 M88 32 L106 62"/><circle class="hd" cx="88" cy="18" r="8"/><path class="b" d="M88 27 L88 62 L76 96 M88 62 L100 96"/><path class="b" d="M88 32 L48 38 M88 32 L128 38"/><rect class="w" x="43" y="32" width="6" height="12" rx="1"/><rect class="w" x="127" y="32" width="6" height="12" rx="1"/><path class="a" d="M58 66 Q42 58 42 50"/><path class="a" d="M118 66 Q134 58 134 50"/></svg>`,
+lunges:`<svg class="ex-svg" viewBox="0 0 176 100" role="img" aria-label="Fente, genou arrière vers le sol"><line class="f" x1="20" y1="98" x2="156" y2="98"/><circle class="hd" cx="85" cy="18" r="8"/><path class="b" d="M85 27 L85 58"/><path class="b" d="M85 58 L114 66 L114 96"/><path class="b" d="M85 58 L62 86 L46 94"/><path class="b" d="M85 32 L88 54"/><rect class="w" x="83" y="53" width="10" height="6" rx="1"/><path class="a" d="M56 40 L56 64"/></svg>`,
+bridge:`<svg class="ex-svg" viewBox="0 0 176 100" role="img" aria-label="Pont, bassin qui monte"><line class="f" x1="12" y1="96" x2="164" y2="96"/><circle class="hd" cx="22" cy="87" r="7"/><path class="b" d="M31 90 L82 58"/><path class="b" d="M82 58 L116 62 L124 94"/><rect class="w" x="76" y="48" width="12" height="7" rx="1"/><path class="a" d="M62 92 L62 78"/></svg>`,
+bird_dog:`<svg class="ex-svg" viewBox="0 0 176 100" role="img" aria-label="Bird-dog, bras et jambe opposés tendus"><line class="f" x1="12" y1="96" x2="164" y2="96"/><circle class="hd" cx="127" cy="44" r="7"/><path class="b" d="M72 58 L118 58"/><path class="b" d="M118 58 L118 94"/><path class="b" d="M72 58 L72 94"/><path class="b" d="M118 58 L158 50"/><path class="b" d="M72 58 L28 60"/></svg>`,
+superman:`<svg class="ex-svg" viewBox="0 0 176 100" role="img" aria-label="Superman, allongé sur le ventre, bras et jambes levés"><line class="f" x1="12" y1="92" x2="164" y2="92"/><circle class="hd" cx="123" cy="77" r="7"/><path class="b" d="M60 84 L112 84"/><path class="b" d="M112 84 L152 70"/><path class="b" d="M60 84 L24 74"/><path class="a" d="M162 78 L162 60"/><path class="a" d="M14 78 L14 60"/></svg>`,
+cat_cow:`<svg class="ex-svg" viewBox="0 0 176 100" role="img" aria-label="Chat-vache, dos rond puis creux"><line class="f" x1="12" y1="96" x2="164" y2="96"/><path class="d" d="M72 60 Q95 36 118 60"/><circle class="hd" cx="130" cy="68" r="7"/><path class="b" d="M72 60 Q95 78 118 60"/><path class="b" d="M118 60 L118 94"/><path class="b" d="M72 60 L72 94"/></svg>`
+};
+var PROGRAMMES=[
+{id:"full-body-halteres",
+ titre:"Programme 1 : Full body haltères",
+ sousTitre:"Circuit de la vidéo B.M.P, avec renfort du bas du dos",
+ duree:"environ 40 à 45 minutes",
+ sections:[
+  {titre:"Échauffement (5 min)",exercices:[
+   {nom:"Cercles d’épaules et de hanches",detail:"10 de chaque sens"},
+   {nom:"Chat-vache",detail:"10",note:"Dos rond (pointillé) puis dos creux, lentement.",schema:"cat_cow"},
+   {nom:"Squats sans charge",detail:"10"}
+  ]},
+  {titre:"Circuit : 3 à 4 séries, 60 à 90 s de repos entre les séries",numerote:true,exercices:[
+   {nom:"Squats aux haltères + front raise",detail:"12 répétitions",note:"On descend en squat, on remonte et on lève les bras tendus devant soi.",schema:"squat_front_raise"},
+   {nom:"Bent over reverse fly (oiseau)",detail:"12 répétitions",note:"Charges légères, buste penché à 45°, dos plat, on écarte les bras sur les côtés. On peut poser le front sur un banc incliné pour soulager le bas du dos.",schema:"reverse_fly"},
+   {nom:"Élévations latérales",detail:"12 répétitions",note:"On monte les bras sur les côtés jusqu’à hauteur d’épaules.",schema:"lateral_raise"},
+   {nom:"Curl biceps",detail:"10 répétitions"},
+   {nom:"Fentes alternées",detail:"4 par jambe",note:"Genou arrière vers le sol, buste droit.",schema:"lunges"},
+   {nom:"Ponts (bridges) avec un haltère posé sur le bassin",detail:"12 répétitions",note:"On pousse sur les talons, on monte le bassin.",schema:"bridge"}
+  ]},
+  {titre:"Bas du dos (en fin de séance)",exercices:[
+   {nom:"Bird-dog",detail:"3 séries de 8 par côté",note:"Mouvement lent, dos plat, pause de 2 secondes en position tendue.",schema:"bird_dog"},
+   {nom:"Extension lombaire au sol (superman léger)",detail:"3 séries de 10",note:"Sans cambrer à fond.",schema:"superman"}
+  ]},
+  {titre:"Conseils",exercices:[
+   "Commencer léger sur les squats et les fentes, et monter les charges seulement si le bas du dos reste tranquille.",
+   "Si une douleur aiguë apparaît ou descend dans la jambe, arrêter l’exercice."
+  ]}
+ ]}
+];
 
 /* ---------- Données de base ---------- */
 var LS_KEY='petitspasroses.v1';
@@ -353,8 +435,8 @@ function sortedPhotos(){return P.slice().sort(function(a,b){return a.week<b.week
 var ANG={face:'Face',profil:'Profil',dos:'Dos'};
 
 /* ---------- Interface : état ---------- */
-var UI={angle:'face',delId:null,confirmAll:false,revealed:{},cmp:null,calY:today().getFullYear(),calM:today().getMonth(),confirmReset:false,lastMsg:{},eatMoment:null,eatQty:null,pendingImport:null,copyFail:false};
-function view(){var h=(location.hash||'').replace('#','');return ['aujourdhui','repas','photo','progression','reglages'].indexOf(h)>-1?h:'aujourdhui';}
+var UI={angle:'face',delId:null,confirmAll:false,revealed:{},cmp:null,calY:today().getFullYear(),calM:today().getMonth(),confirmReset:false,lastMsg:{},eatMoment:null,eatQty:null,pendingImport:null,copyFail:false,progOpen:{}};
+function view(){var h=(location.hash||'').replace('#','');return ['aujourdhui','repas','programme','photo','progression','reglages'].indexOf(h)>-1?h:'aujourdhui';}
 function defMoment(){var hr=new Date().getHours();return hr<11?'matin':hr<14?'midi':hr<18?'apres':'soir';}
 var MOMENT={matin:'Matin',midi:'Midi',apres:'Après-midi',soir:'Soir'};
 var QTY={tp:'Trop peu',ok:'Suffisant',t:'Trop',tt:'Beaucoup trop'};
@@ -572,6 +654,28 @@ function viewRepas(){
   return h;
 }
 
+/* ---------- Écran : Programme ---------- */
+function exHTML(e){
+  if(typeof e==='string')return '<li class="ex"><div class="ex-b"><span>'+esc(e)+'</span></div></li>';
+  var h='<li class="ex"><div class="ex-b"><span class="ex-l"><b>'+esc(e.nom)+'</b>'+(e.detail?' <span class="ex-d">'+esc(e.detail)+'</span>':'')+'</span>';
+  if(e.note)h+='<span class="ex-n">'+esc(e.note)+'</span>';
+  if(e.schema&&SCHEMAS[e.schema])h+=SCHEMAS[e.schema];
+  return h+'</div></li>';
+}
+function viewProgramme(){
+  var h='<header class="top"><p class="eyebrow">À la salle</p><h1>Programme</h1></header><div class="prog">';
+  PROGRAMMES.forEach(function(p){
+    var open=!!UI.progOpen[p.id],i=esc(p.id);
+    h+='<section class="acc'+(open?' open':'')+'"><button class="acc-head" id="ph-'+i+'" data-act="prog" data-id="'+i+'" aria-expanded="'+(open?'true':'false')+'" aria-controls="pb-'+i+'"><span class="t"><b>'+esc(p.titre)+'</b>'+(p.sousTitre?'<span class="sub2">'+esc(p.sousTitre)+'</span>':'')+(p.duree?'<span class="tag">'+esc(p.duree)+'</span>':'')+'</span><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span></button>';
+    h+='<div class="acc-body" id="pb-'+i+'" role="region" aria-labelledby="ph-'+i+'"><div class="acc-in"><div class="acc-pad"><p class="legend">Pointillé : position de départ. Flèche : mouvement.</p>';
+    (p.sections||[]).forEach(function(sec){
+      h+='<div class="sec"><h3>'+esc(sec.titre)+'</h3><ul class="exl'+(sec.numerote?' num':'')+'">'+(sec.exercices||[]).map(exHTML).join('')+'</ul></div>';
+    });
+    h+='</div></div></div></section>';
+  });
+  return h+'</div>';
+}
+
 /* ---------- Écran : Progrès ---------- */
 function viewProgress(){
   var t=today(),sk=streaks(),tt=totals(),cur=sk.cur;
@@ -678,7 +782,7 @@ function viewSettings(){
 var keepScroll=true;
 function render(){
   var v=view(),y=window.scrollY;
-  var html=v==='photo'?viewPhoto():v==='repas'?viewRepas():v==='progression'?viewProgress():v==='reglages'?viewSettings():viewToday();
+  var html=v==='photo'?viewPhoto():v==='repas'?viewRepas():v==='programme'?viewProgramme():v==='progression'?viewProgress():v==='reglages'?viewSettings():viewToday();
   $app.innerHTML=html;
   document.querySelectorAll('[data-nav]').forEach(function(a){if(a.dataset.nav===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   window.scrollTo(0,keepScroll?y:0);keepScroll=true;
@@ -768,6 +872,7 @@ function other(a,el){
     case 'drdel':st.drive=st.drive.filter(function(r){return r.id!==id;});save();render();return;
 
     case 'pcheck':{var w=wk(today()),c=S.photoChecks[w]||[],i=c.indexOf(id);if(i>-1)c.splice(i,1);else c.push(id);S.photoChecks[w]=c;save();render();return;}
+    case 'prog':{var card=el.closest('.acc');UI.progOpen[id]=!UI.progOpen[id];if(card){card.classList.toggle('open',!!UI.progOpen[id]);el.setAttribute('aria-expanded',UI.progOpen[id]?'true':'false');}return;}
     case 'angle':UI.angle=v;render();return;
     case 'cam':document.getElementById('fileCam').click();return;
     case 'gal':document.getElementById('fileGal').click();return;
