@@ -274,7 +274,24 @@ var PROGRAMMES=[
    "Commencer léger sur les squats et les fentes, et monter les charges seulement si le bas du dos reste tranquille.",
    "Si une douleur aiguë apparaît ou descend dans la jambe, arrêter l’exercice."
   ]}
- ]}
+ ]},
+ {id:"tapis-incline",
+  titre:"Programme 2 : Marche en côte sur tapis",
+  sousTitre:"Tapis incliné à allure lente, vu sur Instagram",
+  duree:"30 minutes",
+  sections:[
+   {titre:"Réglages du tapis",exercices:[
+    {nom:"Inclinaison",detail:"15"},
+    {nom:"Vitesse",detail:"2,5 à 3",note:"Ces chiffres sont en miles par heure, soit environ 4 à 4,8 km/h. Si ton tapis est en km/h, règle-le sur 4 à 5."},
+    {nom:"Durée",detail:"30 minutes"}
+   ]},
+   {titre:"Conseils",exercices:[
+    "Monter l’inclinaison petit à petit pendant les 3 ou 4 premières minutes, et la redescendre doucement pour finir.",
+    "Marcher avec le buste droit et le regard devant soi, sans se pencher en avant, pour ménager le bas du dos.",
+    "Si l’inclinaison 15 est trop forte au début, commencer à 8 ou 10 et monter d’un cran à chaque séance.",
+    "Si une douleur apparaît dans le dos, baisser l’inclinaison ou s’arrêter."
+   ]}
+  ]}
 ];
 
 /* ---------- Données de base ---------- */
@@ -666,7 +683,7 @@ function viewProgramme(){
   PROGRAMMES.forEach(function(p){
     var open=!!UI.progOpen[p.id],i=esc(p.id);
     h+='<section class="acc'+(open?' open':'')+'"><button class="acc-head" id="ph-'+i+'" data-act="prog" data-id="'+i+'" aria-expanded="'+(open?'true':'false')+'" aria-controls="pb-'+i+'"><span class="t"><b>'+esc(p.titre)+'</b>'+(p.sousTitre?'<span class="sub2">'+esc(p.sousTitre)+'</span>':'')+(p.duree?'<span class="tag">'+esc(p.duree)+'</span>':'')+'</span><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span></button>';
-    h+='<div class="acc-body" id="pb-'+i+'" role="region" aria-labelledby="ph-'+i+'"><div class="acc-in"><div class="acc-pad"><p class="legend">Pointillé : position de départ. Flèche : mouvement.</p>';
+    h+='<div class="acc-body" id="pb-'+i+'" role="region" aria-labelledby="ph-'+i+'"><div class="acc-in"><div class="acc-pad">'+((p.sections||[]).some(function(sc){return (sc.exercices||[]).some(function(e){return e&&e.schema;});})?'<p class="legend">Pointillé : position de départ. Flèche : mouvement.</p>':'');
     (p.sections||[]).forEach(function(sec){
       h+='<div class="sec"><h3>'+esc(sec.titre)+'</h3><ul class="exl'+(sec.numerote?' num':'')+'">'+(sec.exercices||[]).map(exHTML).join('')+'</ul></div>';
     });
